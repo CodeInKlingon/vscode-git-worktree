@@ -2,6 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { simpleGit, SimpleGit, CleanOptions } from 'simple-git';
+import { WorktreeProvider } from './Worktree';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -15,6 +16,19 @@ export function activate(context: vscode.ExtensionContext) {
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "git-worktree-menu" is now active!');
 
+	const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
+	? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+
+	const command = 'git-worktree-menu.open-worktree';
+
+	const commandHandler = (args: any[]) => {
+		vscode.window.showInformationMessage("received open command" + encodeURIComponent(args[0]) );
+	};
+
+	vscode.commands.registerCommand(command, commandHandler);
+	// Samples of `window.registerTreeDataProvider`
+	const worktreeProvider = new WorktreeProvider(rootPath);
+	vscode.window.registerTreeDataProvider('worktreeDependencies', worktreeProvider);
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json

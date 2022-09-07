@@ -10,7 +10,9 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:git-worktree-menu.helloWorld"
+    "onCommand:git-worktree-menu.helloWorld",
+    "onCommand:git-worktree-menu.open-worktree",
+    "onView:worktreeDependencies"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -23,7 +25,7 @@
     "views": {
       "scm": [
         {
-          "id": "worktree",
+          "id": "worktreeDependencies",
           "name": "My Worktrees",
           "icon": "$(list-tree)",
           "contextualTitle": "Source Control: Worktrees"
