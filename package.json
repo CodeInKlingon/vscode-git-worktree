@@ -20,6 +20,11 @@
       {
         "command": "git-worktree-menu.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "git-worktree-menu.refreshList",
+        "title": "Refresh",
+        "icon": "$(refresh)"
       }
     ],
     "views": {
@@ -30,6 +35,15 @@
           "icon": "$(list-tree)",
           "contextualTitle": "Source Control: Worktrees"
         }
+      ]
+    },
+    "menus": {
+      "view/title": [
+          {
+              "command": "git-worktree-menu.refreshList",
+              "when": "view == worktreeDependencies",
+              "group": "navigation"
+          }
       ]
     }
   },

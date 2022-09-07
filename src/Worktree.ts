@@ -43,7 +43,7 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
         let lines = e.split("\n");
         
         lines.forEach(element => {
-            let line = element.split(" ");
+            let line = element.trim().split(/\s+/);
             // console.log(Object.values(line))
 
             if(Object.values(line).length === 1) { return; }
@@ -56,9 +56,9 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
 
             worktrees.push(
                 new Worktree(
-                    line[3], 
-                    line[0], 
                     line[2], 
+                    line[0], 
+                    line[1], 
                     vscode.TreeItemCollapsibleState.None,
                     openCommand
                 )
@@ -84,7 +84,7 @@ export class Worktree extends vscode.TreeItem {
 		private readonly version: string,
         id: string,
 		public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-		public readonly command?: vscode.Command
+		public readonly command?: vscode.Command,
 	) {
 		super(label, collapsibleState);
 

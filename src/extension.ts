@@ -21,14 +21,18 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const command = 'git-worktree-menu.open-worktree';
 
-	const commandHandler = (args: any[]) => {
-		vscode.window.showInformationMessage("received open command" + encodeURIComponent(args[0]) );
+	const commandHandler = async (args: any) => {
+		// vscode.window.showInformationMessage("received open command " + args );
+		const uri = vscode.Uri.file(args);
+		let success = await vscode.commands.executeCommand('vscode.openFolder', uri);
 	};
 
 	vscode.commands.registerCommand(command, commandHandler);
 	// Samples of `window.registerTreeDataProvider`
 	const worktreeProvider = new WorktreeProvider(rootPath);
 	vscode.window.registerTreeDataProvider('worktreeDependencies', worktreeProvider);
+
+	vscode.commands.registerCommand('git-worktree-menu.refreshList', () => worktreeProvider.refresh() );
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
