@@ -20,8 +20,8 @@ export function activate(context: vscode.ExtensionContext) {
 //open
 	const openWorktreeCommand = 'git-worktree-menu.open-worktree';
 	const openWorktreeCommandHandler = async (args: any) => {
-
-		const uri = vscode.Uri.file(args);
+		
+		const uri = vscode.Uri.file(args.path? args.path : args );
 		await vscode.commands.executeCommand('vscode.openFolder', uri);
 	};
 	vscode.commands.registerCommand(openWorktreeCommand, openWorktreeCommandHandler);
