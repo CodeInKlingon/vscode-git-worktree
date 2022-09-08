@@ -55,11 +55,12 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
 
         let availableBranchesQuickPickItems = filteredBranches.map( (e) => { return {label: "$(source-control) "+e, id: 0}; });
 
+        let newBranch = false;
         //select branch
         let branch = await vscode.window.showQuickPick([ 
             ...(availableBranchesQuickPickItems.length>0 ? [{label: "Available Branches", kind: vscode.QuickPickItemKind.Separator, id: "0"}] : [] ),
             ...availableBranchesQuickPickItems, 
-            {label:"$(plus) Create New Branch", id: 0}
+            {label:"$(plus) Create New Branch", id: -1}
         ], {
             title: "Select the branch to initialize this worktree with"
         });
@@ -68,22 +69,38 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
 
         if (branch.id === -1) {
             let branchName = await vscode.window.showInputBox({
-                title: "Enter the name for the new branch"
+                title: "Enter the name for the new branch",
+                validateInput: text => {
+                    let branchNameRegex = /^(?!\.| |-|\/)((?!\.\.)(?!.*\/\.)(\/\*|\/\*\/)*(?!@\{)[^\~\:\^\\\ \?*\[])+(?<!\.|\/)(?<!\.lock)$/
+                    if (!branchNameRegex.test(text)) {
+                        return "Not a valid branch name";
+                    } else if (branches.all.includes(text)) {
+                        return "A branch with this name already exists";
+                    }
+                    return null; // return null if validates
+                }
             });
 
             if(!branchName) {return;}
+            newBranch = true;
 
             branch.label = branchName;
         }
 
-        vscode.window.showInformationMessage('Selected branch: ' + branch);
+        vscode.window.showInformationMessage('Selected branch: ' + branch.label);
 
-		const commands = ['worktree', 'add', fileUri[0].fsPath + folderName, branch.label];
-        vscode.window.showInformationMessage( commands.join(" "));
+		const commands = [
+            'worktree', 
+            'add', 
+            fileUri[0].fsPath + folderName, 
+            ...(newBranch? ["-b"] : [] ),
+            branch.label
+        ];
 
         let e = await simpleGit(this.workspaceRoot).raw(...commands);
+        vscode.window.showInformationMessage( e );
 
-
+        this.refresh();
 
     }
 
