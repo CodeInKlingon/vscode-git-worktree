@@ -30,6 +30,11 @@
         "command": "git-worktree-menu.addWorktree",
         "title": "Create",
         "icon": "$(plus)"
+      },
+      {
+        "command": "git-worktree-menu.openWorktreeNewWindow",
+        "title": "Open Worktree in seperate window",
+        "icon": "$(empty-window)"
       }
     ],
     "views": {
@@ -53,6 +58,13 @@
             "command": "git-worktree-menu.addWorktree",
             "when": "view == worktreeDependencies",
             "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "git-worktree-menu.openWorktreeNewWindow",
+          "group": "inline",
+          "when": "viewItem == other-worktree"
         }
       ]
     }

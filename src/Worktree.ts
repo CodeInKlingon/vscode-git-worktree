@@ -11,7 +11,6 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
 
 	constructor(private workspaceRoot: string | undefined) {
         this.worktrees = [];
-        vscode.window.showInformationMessage("construct worktree treedata provider");
 	}
 
 	refresh(): void {
@@ -94,7 +93,6 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
 
 	getChildren(element?: Worktree): Thenable<Worktree[]> {
 		if (!this.workspaceRoot) {
-			vscode.window.showInformationMessage('No dependency in empty workspace');
 			return Promise.resolve([]);
 		}
 
@@ -112,8 +110,6 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
 	private async getWoktrees(path: string): Promise<Worktree[]> {
 		const commands = ['worktree', 'list'];
         let e = await simpleGit(path).raw(...commands);
-
-        vscode.window.showInformationMessage("get worktrees function");
         
         let worktrees: Worktree[] = [];
         let lines = e.split("\n");
@@ -151,12 +147,10 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
 
 export class Worktree extends vscode.TreeItem {
 
-    public branch: string;
-
 	constructor(
-        branch: string,
+        public branch: string,
 		// public readonly label: string,
-		private readonly version: string,
+		public path: string,
         id: string,
 		public readonly collapsibleState: vscode.TreeItemCollapsibleState,
 		public readonly command?: vscode.Command,
@@ -164,8 +158,22 @@ export class Worktree extends vscode.TreeItem {
         super(branch, collapsibleState);
         this.branch = branch;
 
-		this.tooltip = `${this.label}-${this.version}`;
-		this.description = this.version;
+        const currentPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
+	? vscode.workspace.workspaceFolders[0].uri.path : "";
+
+    let isThisWorktreeOpen = this.path.substring(this.path.indexOf(":") + 1) === currentPath.substring(currentPath.indexOf(":") + 1)
+        
+        if(isThisWorktreeOpen){
+            this.contextValue = "current-worktree";
+            // this.label = "$(primitive-dot) " + this.branch;
+            this.iconPath = new vscode.ThemeIcon("check");
+        }else{
+            this.contextValue = "other-worktree";
+            this.iconPath = new vscode.ThemeIcon("git-branch");
+
+        }
+		this.tooltip = `${this.label}-${this.path}`;
+		this.description = this.path;
 	}
 
 
