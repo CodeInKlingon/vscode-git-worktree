@@ -64,7 +64,7 @@
         {
           "command": "git-worktree-menu.openWorktreeNewWindow",
           "group": "inline",
-          "when": "viewItem == other-worktree"
+          "when": "view == worktreeDependencies && viewItem == other-worktree"
         }
       ]
     }

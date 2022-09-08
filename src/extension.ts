@@ -17,36 +17,41 @@ export function activate(context: vscode.ExtensionContext) {
 
 //register commands
 
-	//open
+//open
 	const openWorktreeCommand = 'git-worktree-menu.open-worktree';
 	const openWorktreeCommandHandler = async (args: any) => {
-		console.log(args)
-		// vscode.window.showInformationMessage("received open command " + args );
+
 		const uri = vscode.Uri.file(args);
-		let success = await vscode.commands.executeCommand('vscode.openFolder', uri);
+		await vscode.commands.executeCommand('vscode.openFolder', uri);
 	};
 	vscode.commands.registerCommand(openWorktreeCommand, openWorktreeCommandHandler);
+
+//open new window
+	const openNewWindowWorktreeCommand = 'git-worktree-menu.openWorktreeNewWindow';
+	const openNewWindowWorktreeCommandHandler = async (args: any) => {
+		let path;
+		if (args) {
+			path = args.path;
+		} else {
+			const selectedWT = await vscode.window.showQuickPick(worktreeProvider.worktrees.map( (e, i) => { return { label: e.branch, path: e.path }; }));
+			
+			if (!selectedWT) { return; }
+			
+			path = selectedWT.path;
+		}
+		const uri = vscode.Uri.file(path);
+		await vscode.commands.executeCommand('vscode.openFolder', uri, true );
+	};
+	vscode.commands.registerCommand(openNewWindowWorktreeCommand, openNewWindowWorktreeCommandHandler);
+
+
 
 //refresh
 	vscode.commands.registerCommand('git-worktree-menu.refreshList', () => worktreeProvider.refresh() );
 
 //add
 	vscode.commands.registerCommand('git-worktree-menu.addWorktree', () => worktreeProvider.create() );
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('git-worktree-menu.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		const commands = ['worktree', 'list'];
-		simpleGit("./").raw(...commands).then( (e) => {
-			console.log(e)
-		});
-		vscode.window.showInformationMessage('Hello World from Git Worktree Menu!');
 
-	});
-
-	context.subscriptions.push(disposable);
 }
 
 // this method is called when your extension is deactivated

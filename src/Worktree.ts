@@ -5,7 +5,7 @@ import { simpleGit, SimpleGit, CleanOptions } from 'simple-git';
 
 export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
 
-    private worktrees: Worktree[];
+    public worktrees: Worktree[];
 	private _onDidChangeTreeData: vscode.EventEmitter<Worktree | undefined | void> = new vscode.EventEmitter<Worktree | undefined | void>();
 	readonly onDidChangeTreeData: vscode.Event<Worktree | undefined | void> = this._onDidChangeTreeData.event;
 
@@ -189,7 +189,7 @@ export class Worktree extends vscode.TreeItem {
             this.iconPath = new vscode.ThemeIcon("git-branch");
 
         }
-		this.tooltip = `${this.label}-${this.path}`;
+		this.tooltip = `Click to switch this window to this worktree`;
 		this.description = this.path;
 	}
 
