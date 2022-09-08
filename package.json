@@ -25,6 +25,11 @@
         "command": "git-worktree-menu.refreshList",
         "title": "Refresh",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "git-worktree-menu.addWorktree",
+        "title": "Create",
+        "icon": "$(plus)"
       }
     ],
     "views": {
@@ -43,7 +48,12 @@
               "command": "git-worktree-menu.refreshList",
               "when": "view == worktreeDependencies",
               "group": "navigation"
-          }
+          },
+          {
+            "command": "git-worktree-menu.addWorktree",
+            "when": "view == worktreeDependencies",
+            "group": "navigation"
+        }
       ]
     }
   },

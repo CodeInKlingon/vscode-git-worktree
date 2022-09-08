@@ -5,16 +5,88 @@ import { simpleGit, SimpleGit, CleanOptions } from 'simple-git';
 
 export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
 
+    private worktrees: Worktree[];
 	private _onDidChangeTreeData: vscode.EventEmitter<Worktree | undefined | void> = new vscode.EventEmitter<Worktree | undefined | void>();
 	readonly onDidChangeTreeData: vscode.Event<Worktree | undefined | void> = this._onDidChangeTreeData.event;
 
 	constructor(private workspaceRoot: string | undefined) {
+        this.worktrees = [];
         vscode.window.showInformationMessage("construct worktree treedata provider");
 	}
 
 	refresh(): void {
 		this._onDidChangeTreeData.fire();
 	}
+
+    async create() {
+
+        await this.refresh();
+
+        const pick = await vscode.window.showQuickPick(
+            [{label:"Select the parent folder for the new worktree", id: 0},{label: "Cancel", id: 1}],
+            {
+                title: "Create a new worktree",
+            }
+        );
+        
+        if(pick?.id === 1) {return;}
+
+        //select path
+        let fileUri = await vscode.window.showOpenDialog({
+            canSelectMany: false,
+            openLabel: 'Select parent path for new worktree',
+            canSelectFiles: false,
+            canSelectFolders: true    
+        });
+        if (!fileUri) { return; }
+
+        vscode.window.showInformationMessage('Selected file: ' + fileUri[0].fsPath);
+
+        let folderName = await vscode.window.showInputBox({
+            title: "Enter the folder name you would like for this worktree"
+        });
+
+        if (!folderName || folderName == "") { return; }
+
+        vscode.window.showInformationMessage('Entered folder name: ' + folderName);
+
+        let branches = await this.getBranches();
+
+        let filteredBranches = branches.all.filter( (e:string, i) => !this.worktrees.some( w => w.branch === e) );
+
+        let availableBranchesQuickPickItems = filteredBranches.map( (e) => { return {label: "$(source-control) "+e, id: 0}; });
+
+        //select branch
+        let branch = await vscode.window.showQuickPick([ 
+            ...(availableBranchesQuickPickItems.length>0 ? [{label: "Available Branches", kind: vscode.QuickPickItemKind.Separator, id: "0"}] : [] ),
+            ...availableBranchesQuickPickItems, 
+            {label:"$(plus) Create New Branch", id: 0}
+        ], {
+            title: "Select the branch to initialize this worktree with"
+        });
+
+        if (!branch) { return; }
+
+        if (branch.id === -1) {
+            let branchName = await vscode.window.showInputBox({
+                title: "Enter the name for the new branch"
+            });
+
+            if(!branchName) {return;}
+
+            branch.label = branchName;
+        }
+
+        vscode.window.showInformationMessage('Selected branch: ' + branch);
+
+		const commands = ['worktree', 'add', fileUri[0].fsPath + folderName, branch.label];
+        vscode.window.showInformationMessage( commands.join(" "));
+
+        let e = await simpleGit(this.workspaceRoot).raw(...commands);
+
+
+
+    }
 
 	getTreeItem(element: Worktree): vscode.TreeItem {
 		return element;
@@ -30,9 +102,13 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
 
 	}
 
-	/**
-	 * Given the path to package.json, read all its dependencies and devDependencies.
-	 */
+    async getBranches() {
+        vscode.window.showInformationMessage('workspaceRoot' + this.workspaceRoot);
+
+        return simpleGit(this.workspaceRoot).branch(["-l"]);
+    }
+
+
 	private async getWoktrees(path: string): Promise<Worktree[]> {
 		const commands = ['worktree', 'list'];
         let e = await simpleGit(path).raw(...commands);
@@ -56,20 +132,16 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
 
             worktrees.push(
                 new Worktree(
-                    line[2], 
+                    line[2].slice(1, -1), 
                     line[0], 
                     line[1], 
                     vscode.TreeItemCollapsibleState.None,
                     openCommand
                 )
             );
-                // {
-            //     path: line[0],
-            //     commit: line[2],
-            //     branch: line[3],
-            // })
-
         });
+
+        this.worktrees = worktrees;
 
         return worktrees;
         
@@ -79,14 +151,18 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
 
 export class Worktree extends vscode.TreeItem {
 
+    public branch: string;
+
 	constructor(
-		public readonly label: string,
+        branch: string,
+		// public readonly label: string,
 		private readonly version: string,
         id: string,
 		public readonly collapsibleState: vscode.TreeItemCollapsibleState,
 		public readonly command?: vscode.Command,
 	) {
-		super(label, collapsibleState);
+        super(branch, collapsibleState);
+        this.branch = branch;
 
 		this.tooltip = `${this.label}-${this.version}`;
 		this.description = this.version;
@@ -94,4 +170,10 @@ export class Worktree extends vscode.TreeItem {
 
 
 	contextValue = 'worktree';
+}
+
+function getBranches(): any[]{
+    
+    
+    return []
 }
