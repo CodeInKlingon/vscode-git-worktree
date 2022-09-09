@@ -18,7 +18,7 @@
     "commands": [
       {
         "command": "git-worktree-menu.open-worktree",
-        "title": "Open Worktree"
+        "title": "Open worktree"
       },
       {
         "command": "git-worktree-menu.refreshList",
@@ -32,12 +32,16 @@
       },
       {
         "command": "git-worktree-menu.openWorktreeNewWindow",
-        "title": "Open Worktree in seperate window",
+        "title": "Open worktree in seperate window",
         "icon": "$(empty-window)"
       },
       {
         "command": "git-worktree-menu.removeWorktree",
         "title": "Remove worktree"
+      },
+      {
+        "command": "git-worktree-menu.forceRemoveWorktree",
+        "title": "Force remove worktree"
       }
     ],
     "views": {
@@ -79,6 +83,10 @@
         },
         {
           "command": "git-worktree-menu.removeWorktree",
+          "when": "view == worktreeDependencies && viewItem == other-worktree"
+        },
+        {
+          "command": "git-worktree-menu.forceRemoveWorktree",
           "when": "view == worktreeDependencies && viewItem == other-worktree"
         }
       ]

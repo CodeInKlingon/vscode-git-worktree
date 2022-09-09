@@ -1,15 +1,24 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
-import * as path from 'path';
+
 import { simpleGit, SimpleGit, CleanOptions } from 'simple-git';
 
 export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
+
+    _rootPath: string | undefined = undefined;
 
     public worktrees: Worktree[];
 	private _onDidChangeTreeData: vscode.EventEmitter<Worktree | undefined | void> = new vscode.EventEmitter<Worktree | undefined | void>();
 	readonly onDidChangeTreeData: vscode.Event<Worktree | undefined | void> = this._onDidChangeTreeData.event;
 
-	constructor(private workspaceRoot: string | undefined) {
+    public get workspaceRoot() {
+		return (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0)) ? vscode.workspace.workspaceFolders[0].uri.fsPath : this._rootPath;
+	}
+
+	public set workspaceRoot(path){
+        this._rootPath = path;
+	}
+
+	constructor() {
         this.worktrees = [];
 	}
 
@@ -17,9 +26,45 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
 		this._onDidChangeTreeData.fire();
 	}
 
+    async forceRemove(args: any) {
+        const pick = await vscode.window.showQuickPick(
+            [
+                {label:"Are you sure you want to force remove this worktree?", id: 0},
+                {label: "Cancel", id: 1}
+            ],
+            {
+                title: "Force remove worktree",
+                
+            }
+        );
+
+        if (pick && pick.id === 0) {
+            this.removeWorktree(args, true);
+        }
+    }
+
+    async removeWorktree(args: any, force = false) {
+        console.log(args);
+        const commands = [
+            'worktree', 
+            'remove', 
+            ...(force? ["-f"] : [] ),
+            args.path
+        ];
+        let gitPath = vscode.workspace.workspaceFolders?vscode.workspace.workspaceFolders[0].uri.fsPath: "./";
+        try {
+            let e = await simpleGit(gitPath).raw(...commands);
+        } catch (error: any) {
+            vscode.window.showInformationMessage(error.message);
+        }
+        
+
+        this.refresh();
+    }
+
     async create() {
 
-        await this.refresh();
+        this.refresh();
 
         const pick = await vscode.window.showQuickPick(
             [{label:"Select the parent folder for the new worktree", id: 0},{label: "Cancel", id: 1}],
@@ -94,7 +139,7 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
             'add', 
             fileUri[0].fsPath + folderName, 
             ...(newBranch? ["-b"] : [] ),
-            branch.label
+            branch.label.split(" ")[1]
         ];
 
         let e = await simpleGit(this.workspaceRoot).raw(...commands);

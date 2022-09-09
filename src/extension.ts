@@ -8,11 +8,10 @@ import { WorktreeProvider } from './Worktree';
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 	
-	const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
-	? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+
 
 // Setup tree view
-	const worktreeProvider = new WorktreeProvider(rootPath);
+	const worktreeProvider = new WorktreeProvider();
 	vscode.window.registerTreeDataProvider('worktreeDependencies', worktreeProvider);
 
 //register commands
@@ -20,8 +19,14 @@ export function activate(context: vscode.ExtensionContext) {
 //open
 	const openWorktreeCommand = 'git-worktree-menu.open-worktree';
 	const openWorktreeCommandHandler = async (args: any) => {
-		
-		const uri = vscode.Uri.file(args.path? args.path : args );
+		let path = args?.path? args.path : args;
+
+		if (!path) {
+			const selectedWT = await vscode.window.showQuickPick(worktreeProvider.worktrees.map( (e, i) => { return { label: e.branch, path: e.path }; }));
+			if (!selectedWT) { return; }
+			path = selectedWT.path;
+		}
+		const uri = vscode.Uri.file(path);
 		await vscode.commands.executeCommand('vscode.openFolder', uri);
 	};
 	vscode.commands.registerCommand(openWorktreeCommand, openWorktreeCommandHandler);
@@ -51,6 +56,10 @@ export function activate(context: vscode.ExtensionContext) {
 
 //add
 	vscode.commands.registerCommand('git-worktree-menu.addWorktree', () => worktreeProvider.create() );
+
+//remove
+	vscode.commands.registerCommand('git-worktree-menu.removeWorktree', (args) => worktreeProvider.removeWorktree(args) );
+	vscode.commands.registerCommand('git-worktree-menu.forceRemoveWorktree', (args) =>  worktreeProvider.forceRemove(args) );
 
 }
 
