@@ -227,7 +227,6 @@ export class Worktree extends vscode.TreeItem {
         
         if(isThisWorktreeOpen){
             this.contextValue = "current-worktree";
-            // this.label = "$(primitive-dot) " + this.branch;
             this.iconPath = new vscode.ThemeIcon("check");
         }else{
             this.contextValue = "other-worktree";
