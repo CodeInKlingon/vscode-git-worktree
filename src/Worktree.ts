@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 
 import { simpleGit } from 'simple-git';
+import path = require('node:path');
 
 export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
 
@@ -83,7 +84,7 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
         });
         if (!fileUri) { return; }
 
-        vscode.window.showInformationMessage('Selected file: ' + fileUri[0].fsPath);
+        vscode.window.showInformationMessage('Selected parent folder: ' + fileUri[0].fsPath);
 
         const folderName = await vscode.window.showInputBox({
             title: "Enter the folder name you would like for this worktree"
@@ -109,8 +110,10 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
             title: "Select the branch to initialize this worktree with"
         });
 
+        //user selected cancel
         if (!branch) { return; }
 
+        //user wants to specify a new branch
         if (branch.id === -1) {
             const branchName = await vscode.window.showInputBox({
                 title: "Enter the name for the new branch",
@@ -129,17 +132,23 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
             newBranch = true;
 
             branch.label = branchName;
+        }else{
+            branch.label = branch.label.split(" ")[1];
         }
 
         vscode.window.showInformationMessage('Selected branch: ' + branch.label);
 
+        const pathForBranch = path.join(fileUri[0].fsPath, folderName);
+
 		const commands = [
             'worktree', 
-            'add', 
-            fileUri[0].fsPath + folderName, 
+            'add',
+            pathForBranch, 
             ...(newBranch ? ["-b"] : [] ),
-            branch.label.split(" ")[1]
+            branch.label
         ];
+        
+        vscode.window.showInformationMessage('Running git command ' + commands.join(" "));
 
         let e = await simpleGit(this.workspaceRoot).raw(...commands);
         vscode.window.showInformationMessage( e );
