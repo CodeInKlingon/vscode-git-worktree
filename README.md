@@ -11,8 +11,6 @@ Worktrees are a core feature of git. You can use this feature when you want to h
 ---
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
-
 ### 1.0.0
 
 Initial release
