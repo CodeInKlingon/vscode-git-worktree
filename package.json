@@ -13,6 +13,9 @@
     "onCommand:git-worktree-menu.open-worktree",
     "onView:worktreeDependencies"
   ],
+  "extensionDependencies": [
+    "vscode.git"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
@@ -48,7 +51,7 @@
       "scm": [
         {
           "id": "worktreeDependencies",
-          "name": "My Worktrees",
+          "name": "Worktrees Manager",
           "icon": "$(list-tree)",
           "contextualTitle": "Source Control: Worktrees"
         }

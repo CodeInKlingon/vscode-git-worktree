@@ -1,19 +1,48 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { simpleGit, SimpleGit, CleanOptions } from 'simple-git';
 import { WorktreeProvider } from './Worktree';
+
+import { API as GitAPI, GitExtension } from './git.d'; 
+
+async function getBuiltInGitApi(): Promise<GitAPI | undefined> {
+	try {
+		const extension = vscode.extensions.getExtension<GitExtension>('vscode.git');
+		if (extension !== undefined) {
+			const gitExtension = extension.isActive ? extension.exports : await extension.activate();
+
+			return gitExtension.getAPI(1);
+		}
+	} catch {}
+
+	return undefined;
+}
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-	
-
 
 // Setup tree view
 	const worktreeProvider = new WorktreeProvider();
 	vscode.window.registerTreeDataProvider('worktreeDependencies', worktreeProvider);
 
+	const setupEvents = async () => {
+
+		const builtinGit = await getBuiltInGitApi();
+		if (builtinGit) {
+
+			builtinGit.onDidChangeState((e)=>{				
+				builtinGit.repositories.forEach((repo) => {
+					repo.state.onDidChange((e)=>{
+						worktreeProvider.refresh();
+					})
+				});
+			});
+
+		}
+	}
+
+	setupEvents();
 //register commands
 
 //open
