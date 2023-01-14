@@ -18,37 +18,37 @@ async function getBuiltInGitApi(): Promise<GitAPI | undefined> {
 	return undefined;
 }
 
+const setupEvents = async (treeProvider: WorktreeProvider) => {
+
+	const builtinGit = await getBuiltInGitApi();
+	if (builtinGit) {
+
+		builtinGit.onDidChangeState((e)=>{				
+			builtinGit.repositories.forEach((repo) => {
+				repo.state.onDidChange((e)=>{
+					treeProvider.refresh();
+				});
+			});
+		});
+
+	}
+};
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-// Setup tree view
+	// Setup tree view
 	const worktreeProvider = new WorktreeProvider();
 	vscode.window.registerTreeDataProvider('worktreeDependencies', worktreeProvider);
 
-	const setupEvents = async () => {
-
-		const builtinGit = await getBuiltInGitApi();
-		if (builtinGit) {
-
-			builtinGit.onDidChangeState((e)=>{				
-				builtinGit.repositories.forEach((repo) => {
-					repo.state.onDidChange((e)=>{
-						worktreeProvider.refresh();
-					})
-				});
-			});
-
-		}
-	}
-
-	setupEvents();
-//register commands
-
-//open
+	//set up git events to trigger worktree provider
+	setupEvents(worktreeProvider);
+	
+	//open worktree command
 	const openWorktreeCommand = 'git-worktree-menu.open-worktree';
 	const openWorktreeCommandHandler = async (args: any) => {
-		let path = args?.path? args.path : args;
+		//sometimes args is different depending on what calls the command
+		let path = args.path ? args.path : args;
 
 		if (!path) {
 			const selectedWT = await vscode.window.showQuickPick(worktreeProvider.worktrees.map( (e, i) => { return { label: e.branch, path: e.path }; }));
@@ -60,13 +60,13 @@ export function activate(context: vscode.ExtensionContext) {
 	};
 	vscode.commands.registerCommand(openWorktreeCommand, openWorktreeCommandHandler);
 
-//open new window
+	//open worktree in new window
 	const openNewWindowWorktreeCommand = 'git-worktree-menu.openWorktreeNewWindow';
 	const openNewWindowWorktreeCommandHandler = async (args: any) => {
-		let path;
-		if (args) {
-			path = args.path;
-		} else {
+		//sometimes args is different depending on what calls the command
+		let path = args.path ? args.path : undefined;
+		
+		if (!path) {
 			const selectedWT = await vscode.window.showQuickPick(worktreeProvider.worktrees.map( (e, i) => { return { label: e.branch, path: e.path }; }));
 			
 			if (!selectedWT) { return; }
@@ -78,16 +78,15 @@ export function activate(context: vscode.ExtensionContext) {
 	};
 	vscode.commands.registerCommand(openNewWindowWorktreeCommand, openNewWindowWorktreeCommandHandler);
 
-
-
-//refresh
+	//refresh worktree list command linking
 	vscode.commands.registerCommand('git-worktree-menu.refreshList', () => worktreeProvider.refresh() );
 
-//add
+	//add worktree command linking
 	vscode.commands.registerCommand('git-worktree-menu.addWorktree', () => worktreeProvider.create() );
 
-//remove
+	//remove work tree command linking
 	vscode.commands.registerCommand('git-worktree-menu.removeWorktree', (args) => worktreeProvider.removeWorktree(args) );
+	//force remove work tree command linking
 	vscode.commands.registerCommand('git-worktree-menu.forceRemoveWorktree', (args) =>  worktreeProvider.forceRemove(args) );
 
 }

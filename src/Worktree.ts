@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { simpleGit, SimpleGit, CleanOptions } from 'simple-git';
+import { simpleGit } from 'simple-git';
 
 export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
 
@@ -51,14 +51,13 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
             ...(force? ["-f"] : [] ),
             args.path
         ];
-        let gitPath = vscode.workspace.workspaceFolders?vscode.workspace.workspaceFolders[0].uri.fsPath: "./";
+        const gitPath = vscode.workspace.workspaceFolders?vscode.workspace.workspaceFolders[0].uri.fsPath: "./";
         try {
-            let e = await simpleGit(gitPath).raw(...commands);
+            await simpleGit(gitPath).raw(...commands);
         } catch (error: any) {
             vscode.window.showInformationMessage(error.message);
         }
         
-
         this.refresh();
     }
 
@@ -86,23 +85,23 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
 
         vscode.window.showInformationMessage('Selected file: ' + fileUri[0].fsPath);
 
-        let folderName = await vscode.window.showInputBox({
+        const folderName = await vscode.window.showInputBox({
             title: "Enter the folder name you would like for this worktree"
         });
 
-        if (!folderName || folderName == "") { return; }
+        if (!folderName || folderName === "") { return; }
 
         vscode.window.showInformationMessage('Entered folder name: ' + folderName);
 
-        let branches = await this.getBranches();
+        const branches = await this.getBranches();
 
-        let filteredBranches = branches.all.filter( (e:string, i) => !this.worktrees.some( w => w.branch === e) );
+        const filteredBranches = branches.all.filter( (e:string, i) => !this.worktrees.some( w => w.branch === e) );
 
-        let availableBranchesQuickPickItems = filteredBranches.map( (e) => { return {label: "$(source-control) "+e, id: 0}; });
+        const availableBranchesQuickPickItems = filteredBranches.map( (e) => { return {label: "$(source-control) "+e, id: 0}; });
 
         let newBranch = false;
         //select branch
-        let branch = await vscode.window.showQuickPick([ 
+        const branch = await vscode.window.showQuickPick([ 
             ...(availableBranchesQuickPickItems.length>0 ? [{label: "Available Branches", kind: vscode.QuickPickItemKind.Separator, id: "0"}] : [] ),
             ...availableBranchesQuickPickItems, 
             {label:"$(plus) Create New Branch", id: -1}
@@ -113,10 +112,10 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
         if (!branch) { return; }
 
         if (branch.id === -1) {
-            let branchName = await vscode.window.showInputBox({
+            const branchName = await vscode.window.showInputBox({
                 title: "Enter the name for the new branch",
                 validateInput: text => {
-                    let branchNameRegex = /^(?!\.| |-|\/)((?!\.\.)(?!.*\/\.)(\/\*|\/\*\/)*(?!@\{)[^\~\:\^\\\ \?*\[])+(?<!\.|\/)(?<!\.lock)$/
+                    let branchNameRegex = /^(?!\.| |-|\/)((?!\.\.)(?!.*\/\.)(\/\*|\/\*\/)*(?!@\{)[^\~\:\^\\\ \?*\[])+(?<!\.|\/)(?<!\.lock)$/;
                     if (!branchNameRegex.test(text)) {
                         return "Not a valid branch name";
                     } else if (branches.all.includes(text)) {
@@ -138,7 +137,7 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
             'worktree', 
             'add', 
             fileUri[0].fsPath + folderName, 
-            ...(newBranch? ["-b"] : [] ),
+            ...(newBranch ? ["-b"] : [] ),
             branch.label.split(" ")[1]
         ];
 
@@ -171,18 +170,18 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
 
 	private async getWoktrees(path: string): Promise<Worktree[]> {
 		const commands = ['worktree', 'list'];
-        let e = await simpleGit(path).raw(...commands);
+        const e = await simpleGit(path).raw(...commands);
         
-        let worktrees: Worktree[] = [];
-        let lines = e.split("\n");
+        const worktrees: Worktree[] = [];
+        const lines = e.split("\n");
         
         lines.forEach(element => {
-            let line = element.trim().split(/\s+/);
+            const line = element.trim().split(/\s+/);
             // console.log(Object.values(line))
 
             if(Object.values(line).length === 1) { return; }
             
-            let openCommand: vscode.Command = {
+            const openCommand: vscode.Command = {
                 title: "open",
                 command: "git-worktree-menu.open-worktree",
                 arguments: [line[0]]
@@ -220,10 +219,9 @@ export class Worktree extends vscode.TreeItem {
         super(branch, collapsibleState);
         this.branch = branch;
 
-        const currentPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
-	? vscode.workspace.workspaceFolders[0].uri.path : "";
+        const currentPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0)) ? vscode.workspace.workspaceFolders[0].uri.path : "";
 
-    let isThisWorktreeOpen = this.path.substring(this.path.indexOf(":") + 1) === currentPath.substring(currentPath.indexOf(":") + 1)
+        const isThisWorktreeOpen = this.path.substring(this.path.indexOf(":") + 1) === currentPath.substring(currentPath.indexOf(":") + 1);
         
         if(isThisWorktreeOpen){
             this.contextValue = "current-worktree";
@@ -237,12 +235,5 @@ export class Worktree extends vscode.TreeItem {
 		this.description = this.path;
 	}
 
-
 	contextValue = 'worktree';
-}
-
-function getBranches(): any[]{
-    
-    
-    return []
 }
