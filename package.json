@@ -2,7 +2,7 @@
   "name": "git-worktree-menu",
   "displayName": "Git Worktree Menu",
   "description": "Displays a menu for viewing, switching, creating, and removing git worktrees",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "engines": {
     "vscode": "^1.70.0"
   },
