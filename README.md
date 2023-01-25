@@ -11,6 +11,10 @@ Worktrees are a core feature of git. You can use this feature when you want to h
 ---
 ## Release Notes
 
+### 1.0.1
+
+Added support for remote branches
+
 ### 1.0.0
 
 Initial release
