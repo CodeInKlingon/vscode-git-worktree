@@ -3,7 +3,7 @@
 import * as vscode from 'vscode';
 import { WorktreeProvider } from './Worktree';
 
-import { API as GitAPI, GitExtension } from './git.d'; 
+import { API as GitAPI, GitExtension } from './git.d';
 
 async function getBuiltInGitApi(): Promise<GitAPI | undefined> {
 	try {
@@ -13,7 +13,7 @@ async function getBuiltInGitApi(): Promise<GitAPI | undefined> {
 
 			return gitExtension.getAPI(1);
 		}
-	} catch {}
+	} catch { }
 
 	return undefined;
 }
@@ -23,9 +23,9 @@ const setupEvents = async (treeProvider: WorktreeProvider) => {
 	const builtinGit = await getBuiltInGitApi();
 	if (builtinGit) {
 
-		builtinGit.onDidChangeState((e)=>{				
+		builtinGit.onDidChangeState((e) => {
 			builtinGit.repositories.forEach((repo) => {
-				repo.state.onDidChange((e)=>{
+				repo.state.onDidChange((e) => {
 					treeProvider.refresh();
 				});
 			});
@@ -43,7 +43,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	//set up git events to trigger worktree provider
 	setupEvents(worktreeProvider);
-	
+
 	//open worktree command
 	const openWorktreeCommand = 'git-worktree-menu.open-worktree';
 	const openWorktreeCommandHandler = async (args: any) => {
@@ -51,7 +51,7 @@ export function activate(context: vscode.ExtensionContext) {
 		let path = args.path ? args.path : args;
 
 		if (!path) {
-			const selectedWT = await vscode.window.showQuickPick(worktreeProvider.worktrees.map( (e, i) => { return { label: e.branch, path: e.path }; }));
+			const selectedWT = await vscode.window.showQuickPick(worktreeProvider.worktrees.map((e, i) => { return { label: e.branch, path: e.path }; }));
 			if (!selectedWT) { return; }
 			path = selectedWT.path;
 		}
@@ -65,31 +65,31 @@ export function activate(context: vscode.ExtensionContext) {
 	const openNewWindowWorktreeCommandHandler = async (args: any) => {
 		//sometimes args is different depending on what calls the command
 		let path = args.path ? args.path : undefined;
-		
+
 		if (!path) {
-			const selectedWT = await vscode.window.showQuickPick(worktreeProvider.worktrees.map( (e, i) => { return { label: e.branch, path: e.path }; }));
-			
+			const selectedWT = await vscode.window.showQuickPick(worktreeProvider.worktrees.map((e, i) => { return { label: e.branch, path: e.path }; }));
+
 			if (!selectedWT) { return; }
-			
+
 			path = selectedWT.path;
 		}
 		const uri = vscode.Uri.file(path);
-		await vscode.commands.executeCommand('vscode.openFolder', uri, true );
+		await vscode.commands.executeCommand('vscode.openFolder', uri, true);
 	};
 	vscode.commands.registerCommand(openNewWindowWorktreeCommand, openNewWindowWorktreeCommandHandler);
 
 	//refresh worktree list command linking
-	vscode.commands.registerCommand('git-worktree-menu.refreshList', () => worktreeProvider.refresh() );
+	vscode.commands.registerCommand('git-worktree-menu.refreshList', () => worktreeProvider.refresh());
 
 	//add worktree command linking
-	vscode.commands.registerCommand('git-worktree-menu.addWorktree', () => worktreeProvider.create() );
+	vscode.commands.registerCommand('git-worktree-menu.addWorktree', () => worktreeProvider.create());
 
 	//remove work tree command linking
-	vscode.commands.registerCommand('git-worktree-menu.removeWorktree', (args) => worktreeProvider.removeWorktree(args) );
+	vscode.commands.registerCommand('git-worktree-menu.removeWorktree', (args) => worktreeProvider.removeWorktree(args));
 	//force remove work tree command linking
-	vscode.commands.registerCommand('git-worktree-menu.forceRemoveWorktree', (args) =>  worktreeProvider.forceRemove(args) );
+	vscode.commands.registerCommand('git-worktree-menu.forceRemoveWorktree', (args) => worktreeProvider.forceRemove(args));
 
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }
