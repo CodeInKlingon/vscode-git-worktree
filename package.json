@@ -3,6 +3,7 @@
   "displayName": "Git Worktree Menu",
   "description": "Displays a menu for viewing, switching, creating, and removing git worktrees",
   "version": "1.0.1",
+  "publisher": "CodeInKlingon",
   "engines": {
     "vscode": "^1.70.0"
   },
