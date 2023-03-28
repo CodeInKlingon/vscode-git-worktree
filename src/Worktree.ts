@@ -206,7 +206,7 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
             const line = element.trim().split(/\s+/);
             // console.log(Object.values(line))
 
-            if (Object.values(line).length === 1) { return; }
+            if (Object.values(line).length === 1 || line.at(1) === '(bare)') { return; }
 
             const openCommand: vscode.Command = {
                 title: "open",
