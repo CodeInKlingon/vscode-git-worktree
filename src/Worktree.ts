@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import * as fs from 'fs';
+import { join as join_path } from 'path';
 
 import { simpleGit } from 'simple-git';
 import path = require('node:path');
@@ -207,6 +209,8 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
             // console.log(Object.values(line))
 
             if (Object.values(line).length === 1 || line.at(1) === '(bare)') { return; }
+
+            if (!fs.existsSync(join_path(line[0], ".git"))) { return; }
 
             const openCommand: vscode.Command = {
                 title: "open",
