@@ -8,6 +8,7 @@ import path = require('node:path');
 export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
 
     _rootPath: string | undefined = undefined;
+    _lastWorktreePath: vscode.Uri | undefined = undefined;
 
     public worktrees: Worktree[];
     private _onDidChangeTreeData: vscode.EventEmitter<Worktree | undefined | void> = new vscode.EventEmitter<Worktree | undefined | void>();
@@ -77,14 +78,20 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
 
         if (pick?.id === 1) { return; }
 
+        let workspaceUri = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri : undefined;
+        let defaultUri = this._lastWorktreePath || workspaceUri;
+
         //select path
         let fileUri = await vscode.window.showOpenDialog({
+            defaultUri: defaultUri,
             canSelectMany: false,
             openLabel: 'Select parent path for new worktree',
             canSelectFiles: false,
             canSelectFolders: true
         });
         if (!fileUri) { return; }
+
+        this._lastWorktreePath = fileUri[0];
 
         vscode.window.showInformationMessage('Selected parent folder: ' + fileUri[0].fsPath);
 
@@ -172,7 +179,6 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
         vscode.window.showInformationMessage(e);
 
         this.refresh();
-
     }
 
     getTreeItem(element: Worktree): vscode.TreeItem {

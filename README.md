@@ -11,6 +11,10 @@ Worktrees are a core feature of git. You can use this feature when you want to h
 ---
 ## Release Notes
 
+### 1.0.4
+
+Start select parent folder from workspace directory and keep last worktree directory path (runtime only) - [@SR_team](https://github.com/sr-tream)
+
 ### 1.0.3
 
 Do not show bare copy of submodules in worktree list - [@SR_team](https://github.com/sr-tream)
