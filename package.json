@@ -2,7 +2,7 @@
   "name": "git-worktree-menu",
   "displayName": "Git Worktree Menu",
   "description": "Displays a menu for viewing, switching, creating, and removing git worktrees",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "publisher": "CodeInKlingon",
   "engines": {
     "vscode": "^1.70.0"
@@ -36,7 +36,7 @@
       },
       {
         "command": "git-worktree-menu.openWorktreeNewWindow",
-        "title": "Open worktree in seperate window",
+        "title": "Open worktree in separate window",
         "icon": "$(empty-window)"
       },
       {
@@ -60,15 +60,15 @@
     },
     "menus": {
       "view/title": [
-          {
-              "command": "git-worktree-menu.refreshList",
-              "when": "view == worktreeDependencies",
-              "group": "navigation"
-          },
-          {
-            "command": "git-worktree-menu.addWorktree",
-            "when": "view == worktreeDependencies",
-            "group": "navigation"
+        {
+          "command": "git-worktree-menu.refreshList",
+          "when": "view == worktreeDependencies",
+          "group": "navigation"
+        },
+        {
+          "command": "git-worktree-menu.addWorktree",
+          "when": "view == worktreeDependencies",
+          "group": "navigation"
         }
       ],
       "view/item/context": [
@@ -105,9 +105,9 @@
     "test": "node ./out/test/runTest.js"
   },
   "repository": {
-		"type": "git",
-		"url": "https://github.com/CodeInKlingon/vscode-git-worktree.git"
-	},
+    "type": "git",
+    "url": "https://github.com/CodeInKlingon/vscode-git-worktree.git"
+  },
   "devDependencies": {
     "@types/glob": "^7.2.0",
     "@types/mocha": "^9.1.1",
