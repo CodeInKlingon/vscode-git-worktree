@@ -5,6 +5,9 @@ import { join as join_path } from 'path';
 import { simpleGit } from 'simple-git';
 import path = require('node:path');
 
+import { Config } from './config';
+import { copyPath } from './CopyPath';
+
 export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
 
     _rootPath: string | undefined = undefined;
@@ -177,6 +180,15 @@ export class WorktreeProvider implements vscode.TreeDataProvider<Worktree> {
 
         let e = await simpleGit(this.workspaceRoot).raw(...commands);
         vscode.window.showInformationMessage(e);
+
+        if (this.workspaceRoot) {
+            const copyPaths = Config.read().copyPaths;
+            for (const p of copyPaths) {
+                const src = join_path(this.workspaceRoot, p);
+                const dst = join_path(pathForBranch, p);
+                copyPath(src, dst);
+            }
+        }
 
         this.refresh();
     }

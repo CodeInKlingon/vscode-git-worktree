@@ -12,6 +12,10 @@ Worktrees are a core feature of git. You can use this feature when you want to h
 
 ## Release Notes
 
+### 1.0.6
+
+Configure list of paths to copy in new worktree - [@SR_team](https://github.com/sr-tream)
+
 ### 1.0.5
 
 Fix "separate" typo
