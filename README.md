@@ -6,11 +6,18 @@ Quickly and easily create and switch between worktrees.
 
 ![Screenshot](./menu.JPG)
 
-Worktrees are a core feature of git. You can use this feature when you want to have multiple folders on your computer open to different branches of your repo. Switch branches without needing to commit or stash your work in progress changes by using folders.
+Worktrees are a core feature of Git that allow you to have multiple folders on your computer, each open to different branches of your repository. This extension lets you easily manage these worktrees using a new menu under the Source Control activity bar. Create, open or switch worktrees with ease!
 
----
+New in version 1.0.6: Bring your configuration files along for the ride!
+![extension settings](images/config.png)
+
+Configure a list of paths (files or folders) that will be copied from the current worktree when present to newly created worktrees. A quick way to bring along your .env files or other untracked configuration files.
 
 ## Release Notes
+
+### 1.0.7
+
+Introduce extension logo and update readme
 
 ### 1.0.6
 
