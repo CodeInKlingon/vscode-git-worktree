@@ -15,6 +15,10 @@ Configure a list of paths (files or folders) that will be copied from the curren
 
 ## Release Notes
 
+### 1.0.8
+
+Keep parent folder for worktrees in settings - [@SR_team](https://github.com/sr-tream)
+
 ### 1.0.7
 
 Introduce extension logo and update readme

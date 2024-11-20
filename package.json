@@ -3,7 +3,7 @@
   "displayName": "Git Worktree Menu",
   "description": "Displays a menu for viewing, switching, creating, and removing git worktrees",
   "icon": "images/Git_Worktree_Menu.png",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "publisher": "CodeInKlingon",
   "engines": {
     "vscode": "^1.70.0"
@@ -109,6 +109,16 @@
             "type": "string"
           },
           "description": "List of local paths to copy to worktree."
+        },
+        "git-worktree-menu.worktreeDir": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null,
+          "title": "Path to create worktree's",
+          "description": "Default path to create worktrees in. If not set, this extension ask you for a path when you first use the command.",
+          "scope": "machine-overridable"
         }
       }
     }
