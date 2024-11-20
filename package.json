@@ -150,5 +150,6 @@
   },
   "dependencies": {
     "simple-git": "^3.14.0"
-  }
+  },
+  "license": "MIT"
 }
